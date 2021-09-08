@@ -92,10 +92,12 @@ function distanceFromGrenoble(ville) {
  * @return vrai si la ville i est plus proche
  */
 function isLess(v1, v2) {
-  if (v1.distanceFromGrenoble < v2.distanceFromGrenoble) {
-    return true;
-  }
+  return v1.distanceFromGrenoble < v2.distanceFromGrenoble;
 }
+
+// if (v1.distanceFromGrenoble < v2.distanceFromGrenoble) {
+//   return true;
+// }
 
 /**
  * interverti la ville à l'index i avec la ville à l'index j dans la liste des villes
@@ -110,42 +112,36 @@ function swap(listeV, i, j) {
   listeV[j] = intermediaire;
 }
 
+// function swapBcpPlusMieux(i, j) {
+//   [listeVille[i], listVille[j]] = [listVille[j], listVille[i]];
+// }
+
 function sort(type) {
   switch (type) {
     case "insert":
       insertsort(listVille);
       break;
     case "select":
-      selectionsort();
+      selectionsort(listVille);
       break;
     case "bubble":
-      bubblesort();
+      bubblesort(listVille);
       break;
     case "shell":
-      shellsort();
+      shellsort(listVille);
       break;
     case "merge":
-      mergesort();
+      listVille = mergesort(listVille);
       break;
     case "heap":
-      heapsort();
+      heapsort(listVille);
       break;
     case "quick":
-      quicksort();
+      quicksort(listVille);
       break;
   }
 }
-// let j = 0;
-// let intermediaire = 0;
-// for (let i = 0; i < myTab3.length; i++) {
-//   intermediaire = myTab3[i];
-//   j = i - 1;
-//   while (j >= 0 && myTab3[j] > myTab3[j + 1]) {
-//     swap(myTab3, j + 1, j);
 
-//     j--;
-//   }
-// }
 function insertsort(listVille) {
   let j = 0;
   for (let i = 0; i < listVille.length; i++) {
@@ -157,30 +153,149 @@ function insertsort(listVille) {
   }
 }
 
-function selectionsort() {
-  console.log("selectionsort - implement me !");
+function selectionsort(listVille) {
+  for (let i = 0; i < listVille.length; i++) {
+    let min = i;
+    for (let j = i + 1; j < listVille.length; j++) {
+      if (isLess(listVille[j], listVille[min])) {
+        min = j;
+      }
+    }
+    swap(listVille, i, min);
+  }
 }
 
-function bubblesort() {
-  console.log("bubblesort - implement me !");
+function bubblesort(listVille) {
+  let i = 0;
+
+  while (i < listVille.length - 1)
+    if (isLess(listVille[i + 1], listVille[i])) {
+      swap(listVille, i + 1, i);
+      i = 0;
+    } else {
+      i++;
+    }
 }
 
-function shellsort() {
-  console.log("shellsort - implement me !");
+function shellsort(listVille) {
+  let sizeTable = listVille.length;
+  let n = 0;
+
+  while (n < sizeTable) {
+    n = 3 * n + 1;
+  }
+
+  while (n != 0) {
+    n = Math.floor(n / 3);
+
+    for (i = n; i < sizeTable; i++) {
+      let valeur = listVille[i];
+      let j = i;
+
+      while (j > n - 1 && isLess(valeur, listVille[j - n])) {
+        swap(listVille, j, j - n);
+        j = j - n;
+      }
+    }
+  }
 }
 
-function mergesort() {
-  console.log("mergesort - implement me !");
+function mergesort(listVille) {
+  let listVilleSize = listVille.length; //je déclare ma variable de la taille de mon tableau
+  let middleOfMyTab = Math.floor(listVilleSize / 2); //je déclare ma variable pour la moitié de mon tableau
+  if (listVilleSize <= 1) {
+    return listVille;
+  } else {
+    let listVilleLeft = listVille.slice(0, middleOfMyTab); //moitié exclue
+    let listVilleRight = listVille.slice(middleOfMyTab);
+
+    return merge(mergesort(listVilleLeft), mergesort(listVilleRight));
+  }
 }
 
-function heapsort() {
-  console.log("heapsort - implement me !");
+function merge(listVilleLeft, listVilleRight) {
+  let listVilleResult = [];
+  if (listVilleLeft.length < 1) {
+    return listVilleRight;
+  } else if (listVilleRight.length < 1) {
+    return listVilleLeft;
+  } else if (isLess(listVilleLeft[0], listVilleRight[0])) {
+    listVilleResult.push(listVilleLeft[0]);
+    return listVilleResult.concat(
+      merge(listVilleLeft.slice(1), listVilleRight)
+    );
+  } else {
+    listVilleResult.push(listVilleRight[0]);
+    return listVilleResult.concat(
+      merge(listVilleLeft, listVilleRight.slice(1))
+    );
+  }
 }
 
-function quicksort() {
-  console.log("quicksort - implement me !");
+function heapsort(listVille) {
+  organiser(listVille);
+
+  for (let i = listVille.length - 1; i > 0; i--) {
+    swap(listVille, 0, i);
+    redesecendre(listVille, i, 0);
+  }
+  return listVille;
 }
 
+function organiser(listVille) {
+  for (let i = 0; i < listVille.length - 1; i++) {
+    remonter(listVille, i);
+  }
+}
+
+function remonter(listVille, i) {
+  if (isLess(listVille[Math.floor(i / 2)], listVille[i])) {
+    swap(listVille, Math.floor(i / 2), i);
+    remonter(listVille, Math.floor(i / 2));
+  }
+}
+
+function redesecendre(listVille, element, i) {
+  let max;
+  let formule = 2 * i + 1;
+  if (formule < element) {
+    if (isLess(listVille[2 * i], listVille[formule])) {
+      max = formule;
+    } else {
+      max = 2 * i;
+    }
+    if (isLess(listVille[i], listVille[max])) {
+      swap(listVille, i, max);
+      redesecendre(listVille, element, max);
+    }
+  }
+}
+
+function quicksort(listVille, first = 0, last = listVille.length - 1) {
+  if (first < last) {
+    pi = part(listVille, first, last);
+    quicksort(listVille, first, pi - 1);
+    quicksort(listVille, pi + 1, last);
+  }
+
+  return listVille;
+}
+
+function part(listVille, first, last) {
+  let pivot = last;
+  let j = first;
+
+  for (let i = first; i < pivot; i++) {
+    if (isLess(listVille[i], listVille[pivot])) {
+      swap(listVille, i, j);
+      j++;
+    }
+  }
+
+  swap(listVille, pivot, j);
+  return j;
+}
+console.log("quicksort - implement me !");
 /** MODEL */
 
 class Ville {
